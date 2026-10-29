@@ -5,7 +5,9 @@
 
 !source "basic.a"
 !source "common.a"
+!source "strgio.a"
 
+!zone main
 main:
         +print hello
         rts

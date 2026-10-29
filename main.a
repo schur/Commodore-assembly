@@ -1,0 +1,56 @@
+; numbers.a - Commodore PET / ACME
+        !to "main.prg", cbm
+
+!source "basic.a"
+!source "common.a"
+!source "strgio.a"
+!source "atoi.a"
+
+!zone main
+main:
+        jsr CLRSCR              ; clear screen
+       
+.main_loop:
+        +print prompt
+
+        +read input_buffer      ; Read characters until Return
+        lda #CR                 ; print newline
+        jsr CHROUT
+
+;        +print msg1
+
+        lda #<input_buffer
+        sta PTRA
+        lda #>input_buffer
+        sta PTRA+1
+        lda #<NUMBER
+        sta PTRB
+        lda #>NUMBER
+        sta PTRB+1
+ 
+        jsr atoi
+        bcs .error
+
+        +print success
+        jmp .main_loop
+.error
+        +print error
+        jmp .main_loop
+
+
+
+prompt:
+        !pet "Enter Number: ",0
+msg1:
+        !pet "You entered: ",0
+error:
+        !pet "Error: invalid input",CR,0
+success:
+        !pet "Valid number",CR,0
+input_buffer:
+        !fill INPUT_MAX+1,0
+
+NUMBER:
+        !word 0
+
+
