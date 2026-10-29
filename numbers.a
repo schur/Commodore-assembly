@@ -1,0 +1,142 @@
+; numbers.a - Commodore PET / ACME
+        !to "numbers.prg", cbm
+
+!source "basic.a"
+!source "common.a"
+
+main:
+        jsr CLRSCR              ; clear screen
+       
+.main_loop:
+        +print prompt
+
+        +read input_buffer      ; Read characters until Return
+        lda #CR                 ; print newline
+        jsr CHROUT
+
+;        +print msg1
+
+        lda #<input_buffer
+        sta PTRA
+        lda #>input_buffer
+        sta PTRA+1
+        lda #<NUMBER
+        sta PTRB
+        lda #>NUMBER
+        sta PTRB+1
+ 
+        jsr atoi
+        bcs .error
+
+        +print success
+        jmp .main_loop
+.error
+        +print error
+        jmp .main_loop
+
+
+
+prompt:
+        !pet "Enter Number: ",0
+msg1:
+        !pet "You entered: ",0
+error:
+        !pet "Error: invalid input",CR,0
+success:
+        !pet "Valid number",CR,0
+input_buffer:
+        !fill INPUT_MAX+1,0
+
+NUMBER:
+        !word 0
+
+; atoi
+; Input:  PTRA -> null-terminated decimal string
+;         PTRB -> pointer to where the result will be written
+; Output: PTRB -> 16-bit unsigned result. On error, PTRB remains untouched.
+;         C=0 success, C=1 error
+; Preserves PTRA, PTRB, Destroys A, X, Y
+
+!zone atoi
+atoi:
+        ldy #0
+        lda (PTRA),y
+        beq .error           ; Empty string
+
+        lda #0               ; initialise result
+        sta .ATOI_ACC
+        sta .ATOI_ACC+1
+
+.loop:
+        lda (PTRA),y
+        beq .success         ; End of string
+
+        ; Convert PETSCII digit to binary
+        cmp #$30             ; '0'
+        bcc .error
+        cmp #$3A             ; One past '9'
+        bcs .error
+        sec
+        sbc #$30
+        tax                  ; save the digit in X
+
+.multiply:
+        ; multiply .ATOI_ACC by 2
+        asl .ATOI_ACC
+        rol .ATOI_ACC+1
+        bcs .error             ; number too big
+        ; store .ATOI_ACC * 2 in ATOI_TMP
+        lda .ATOI_ACC
+        sta .ATOI_TMP
+        lda .ATOI_ACC+1
+        sta .ATOI_TMP+1
+
+        ; multiply .ATOI_ACC by 2 twice more
+        asl .ATOI_ACC
+        rol .ATOI_ACC+1
+        bcs .error             ; number too big
+        asl .ATOI_ACC
+        rol .ATOI_ACC+1
+        bcs .error             ; number too big
+
+        ; .ATOI_ACC = .ATOI_ACC * 8 + .ATOI_ACC * 2
+        clc
+        lda .ATOI_ACC
+        adc .ATOI_TMP
+        sta .ATOI_ACC
+        lda .ATOI_ACC+1
+        adc .ATOI_TMP+1
+        sta .ATOI_ACC+1
+        bcs .error             ; number too big
+
+        ; Add the new digit
+        txa                    ; retrieve digit
+        clc
+        adc .ATOI_ACC             ; add digit to LSB of Number
+        sta .ATOI_ACC
+        bcc +                  ; if carry, need to incremebt MSB
+        inc .ATOI_ACC+1
+        beq .error             ; number too big
+
++       iny
+        bne .loop              ; Avoid index wraparound
+                               ; String exceeds 255 characters - run straight through into error
+.error:
+        sec
+        rts
+.success:
+        ldy #$01
+-       lda .ATOI_ACC,y         ; copy result PTRB
+        sta (PTRB),y
+        dey
+        lda .ATOI_ACC,y         ; copy result PTRB
+        sta (PTRB),y
+        bpl -
+
+        clc
+        rts
+
+; Scratch storage
+.ATOI_TMP: !word 0
+.ATOI_ACC: !word 0
+

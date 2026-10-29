@@ -1,0 +1,14 @@
+        * = $0401
+
+; BASIC stub: 10 SYS 1037
+        !word basic_end
+        !word 10
+        !byte $9e                          ; BASIC SYS token
+        !byte $30 + (main / 1000)         ; calculated address of main:
+        !byte $30 + ((main / 100) % 10)
+        !byte $30 + ((main / 10) % 10)
+        !byte $30 + (main % 10)
+        !byte 0                            ; End of BASIC line
+basic_end:
+        !word 0                            ; End of BASIC program
+

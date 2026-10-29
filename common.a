@@ -1,0 +1,68 @@
+; KERNAL / ROM entry points
+        CHROUT  = $FFD2       ; Output character in A
+        CHRIN   = $FFCF       ; Blocking character input
+        CLRSCR  = $E051       ; PET 4032/8032 clear-screen routine
+
+; PETSCII control Characters
+        CR = $0D  ; return
+        CLR = $93 ; clear screen
+
+; Zero-page variables
+        PTRA = $FB ; pointer for function argument
+        PTRB = $FD ; pointer for function argument
+
+!macro print .message {
+        lda #<.message
+        sta PTRA
+        lda #>.message
+        sta PTRA+1
+        jsr print_string
+}
+
+INPUT_MAX = 31
+!macro read .buffer {
+        lda #<.buffer
+        sta PTRA
+        lda #>.buffer
+        sta PTRA+1
+        jsr read_string
+}
+
+
+; print_string routine
+; On entry:
+;   PTRA / PTRA+1 = address of null-terminated string
+; Uses A and Y; leavses PTRA unchanged as it prints.
+!zone print_string
+print_string:
+        ldy #0
+.loop   lda (PTRA),y
+        beq .done
+        jsr CHROUT
+        iny
+        beq .done ; stop after 256 characters
+        jmp .loop
+.done
+        rts
+
+; read_string routine
+; On entry:
+;   PTRA / PTRA+1 = destination buffer address
+; Uses A and Y; 
+; Stores a null-terminated string, up to 255 characters.
+!zone read_string
+read_string:
+        ldy #0
+.loop   jsr CHRIN
+        cmp #CR
+        beq .done
+        cpy #INPUT_MAX
+        beq .loop           ; discard excess characters
+        sta (PTRA),y
+        iny
+        jmp .loop
+.done
+        lda #0
+        sta (PTRA),y
+        rts
+

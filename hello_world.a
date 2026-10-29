@@ -1,0 +1,15 @@
+; hello_world.a - Commodore PET Hello World
+; Assemble with ACME for a PET with BASIC ROM
+
+        !to "hello_world.prg", cbm
+
+!source "basic.a"
+!source "common.a"
+
+main:
+        +print hello
+        rts
+
+hello:  !byte CLR
+        !pet "Hello World",0
+
