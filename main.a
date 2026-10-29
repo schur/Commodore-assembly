@@ -29,6 +29,11 @@ main:
 
         ;+print msg1
         +print success
+        lda NUMBER
+        jsr CHROUT
+        lda #CR                 ; print newline
+        jsr CHROUT
+
         jmp .main_loop
 .error
         +print error
