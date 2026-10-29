@@ -1,3 +1,15 @@
+!macro atoi .ascii,.int {
+        lda #<.ascii
+        sta PTRA
+        lda #>.ascii
+        sta PTRA+1
+        lda #<.ascii
+        sta PTRB
+        lda #>.ascii
+        sta PTRB+1
+        jsr print_string
+}
+
 ; atoi
 ; Input:  PTRA -> null-terminated decimal string
 ;         PTRB -> pointer to where the result will be written

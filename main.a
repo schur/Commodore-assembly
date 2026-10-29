@@ -17,26 +17,24 @@ main:
         lda #CR                 ; print newline
         jsr CHROUT
 
-;        +print msg1
+        lda input_buffer        ; empty line
+        beq .end
 
-        lda #<input_buffer
-        sta PTRA
-        lda #>input_buffer
-        sta PTRA+1
-        lda #<NUMBER
+        lda #<NUMBER            ; no need to load input_buffer into PTRA - still there
         sta PTRB
         lda #>NUMBER
         sta PTRB+1
- 
         jsr atoi
         bcs .error
 
+        ;+print msg1
         +print success
         jmp .main_loop
 .error
         +print error
         jmp .main_loop
-
+.end
+        rts
 
 
 prompt:
