@@ -2,4 +2,8 @@
         PTRA = $FB ; pointer for function argument
         PTRB = $FD ; pointer for function argument
 
+; Buffer, using the cassette buffer
+
+        CAS_BUF = $033C
+        CAS_BUF_LEN = 192 
 

@@ -1,7 +1,6 @@
 ; KERNAL / ROM entry points
         CHROUT  = $FFD2       ; Output character in A
         CHRIN   = $FFCF       ; Blocking character input
-        CLRSCR  = $E051       ; PET 4032/8032 clear-screen routine
  
 ; PETSCII control Characters
         CR = $0D  ; return
@@ -17,12 +16,12 @@
         jsr print_string
 }
 
-INPUT_MAX = 31
-!macro read .buffer {
+!macro read .buffer,.maxlen {
         lda #<.buffer
         sta PTRA
         lda #>.buffer
         sta PTRA+1
+        lda #.maxlen
         jsr read_string
 }
 
@@ -46,15 +45,17 @@ print_string:
 ; read_string routine
 ; On entry:
 ;   PTRA / PTRA+1 = destination buffer address
+;   A = max number of characters to read
 ; Uses A and Y; 
 ; Stores a null-terminated string, up to 255 characters.
 !zone read_string
 read_string:
+        sta .comp+1         ; self modifying code 
         ldy #0
 .loop   jsr CHRIN
         cmp #CR
         beq .done
-        cpy #INPUT_MAX
+.comp   cpy #0              ; will be replaced with the value in A passed to the routine
         beq .loop           ; discard excess characters
         sta (PTRA),y
         iny

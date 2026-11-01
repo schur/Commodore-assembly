@@ -1,8 +1,8 @@
 !cpu 6502
 !to "main.prg", cbm
-;ARCH_PET=1                  ; Change this value to C64, VIC20, or PET
-;ARCH_VIC20=1                  ; Change this value to C64, VIC20, or PET
-ARCH_C64=1                  ; Change this value to C64, VIC20, or PET
+
+ARCH="C64"                      ; Change this value to C64, VIC20, or PET
+;VIC20_RAM=0                      ; set VIC20 expansion size in KB (0, 3, 8, 16 or 24)
 
 !source "basic.a"
 !source "common.a"              ; import needed library routines
@@ -11,14 +11,15 @@ ARCH_C64=1                  ; Change this value to C64, VIC20, or PET
 
 !zone main
 main:
-        jsr CLRSCR              ; clear screen
+        lda #CLR                ; clear screen
+        jsr CHROUT
         lda #LWRCS              ; switch to lowercase
         jsr CHROUT
        
 .main_loop:
         +print prompt
 
-        +read input_buffer      ; Read characters until Return
+        +read input_buffer,2    ; Read characters until Return
         lda #CR                 ; print newline
         jsr CHROUT
 
@@ -55,8 +56,9 @@ error:
         !pet "Error: invalid input",CR,0
 success:
         !pet "Valid number",CR,0
-input_buffer:
-        !fill INPUT_MAX+1,0
+
+input_buffer = CAS_BUF      ; use cassette buffer for user input
+INPUT_MAX = CAS_BUF_LEN -1  ; leave 1 byte for NULL byte terminator
 
 NUMBER:
         !word 0

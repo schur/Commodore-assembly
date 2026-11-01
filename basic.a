@@ -1,14 +1,22 @@
 
-!ifdef ARCH_PET {
+!if ARCH="PET" {
 * = $0401  ; Start of PET BASIC Memory
 }
 
-!ifdef ARCH_C64 {
-* = $0801  ; Start of PET BASIC Memory
+!if ARCH="C64" {
+* = $0801  ; Start of C64 BASIC Memory
 }
 
-!ifdef ARCH_VIC20 {
-* = $1001  ; Start of PET BASIC Memory
+!if ARCH="VIC20" {
+    !if VIC20_RAM=0 {
+        * = $1001  ; Start of VIC-20 BASIC Memory (no RAM expansion)
+    }
+    !if VIC20_RAM=3 {
+        * = $0401  ; with 3K RAM expansion 
+    }
+    !if VIC20_RAM>=8 {
+        * = $1201  ; with 8K or more RAM expansion
+    }
 }
 
 
