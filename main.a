@@ -1,14 +1,19 @@
-; numbers.a - Commodore PET / ACME
-        !to "main.prg", cbm
+!cpu 6502
+!to "main.prg", cbm
+;ARCH_PET=1                  ; Change this value to C64, VIC20, or PET
+;ARCH_VIC20=1                  ; Change this value to C64, VIC20, or PET
+ARCH_C64=1                  ; Change this value to C64, VIC20, or PET
 
 !source "basic.a"
-!source "common.a"
+!source "common.a"              ; import needed library routines
 !source "strgio.a"
 !source "atoi.a"
 
 !zone main
 main:
         jsr CLRSCR              ; clear screen
+        lda #LWRCS              ; switch to lowercase
+        jsr CHROUT
        
 .main_loop:
         +print prompt

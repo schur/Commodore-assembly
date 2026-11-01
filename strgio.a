@@ -2,10 +2,12 @@
         CHROUT  = $FFD2       ; Output character in A
         CHRIN   = $FFCF       ; Blocking character input
         CLRSCR  = $E051       ; PET 4032/8032 clear-screen routine
-
+ 
 ; PETSCII control Characters
         CR = $0D  ; return
         CLR = $93 ; clear screen
+        LWRCS = $0E ; lower case
+        UPRCS = $8E ; lower case
 
 !macro print .message {
         lda #<.message

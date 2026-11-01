@@ -1,9 +1,22 @@
-        * = $0401
 
-; BASIC stub: 10 SYS 1037
+!ifdef ARCH_PET {
+* = $0401  ; Start of PET BASIC Memory
+}
+
+!ifdef ARCH_C64 {
+* = $0801  ; Start of PET BASIC Memory
+}
+
+!ifdef ARCH_VIC20 {
+* = $1001  ; Start of PET BASIC Memory
+}
+
+
+; BASIC stub:  10 SYS <main> 
+
         !word basic_end
-        !word 10
-        !byte $9e                          ; BASIC SYS token
+        !word 10            ; BASIC Line Number 10
+        !byte $9e                   ; BASIC SYS token
         !byte $30 + (main / 1000)         ; calculated address of main:
         !byte $30 + ((main / 100) % 10)
         !byte $30 + ((main / 10) % 10)
@@ -11,4 +24,6 @@
         !byte 0                            ; End of BASIC line
 basic_end:
         !word 0                            ; End of BASIC program
+
+
 
